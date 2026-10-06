@@ -42,6 +42,17 @@
 
 ## 🚀 安装
 
+> ### ⚠️ 先看清楚：本模块**必需 root + LSPosed**
+>
+> 面板注入能力**完全来自 LSPosed** —— 它把本模块的代码注入到系统「设备空间」进程里，
+> 从而复用宿主的蓝牙权限去控制耳机。
+>
+> **adb 不能替代 root。** 下面的第 4 步（adb 授权）是**可选的**，
+> 它**只影响设置页里 3 个开关能不能改**，与"模块能不能用"毫无关系。
+> 不执行第 4 步，模块功能**一切正常**。
+
+### 必需步骤
+
 1. **安装 APK**（从 [Releases](../../releases) 下载）
    ```bash
    adb install -r NiceHCK-ColorOS-Panel.apk
@@ -55,12 +66,32 @@
 
 3. **重启手机**（或重启上述 App 的进程）
 
-4. **（可选）授权设置页开关**
-   设置页里的开关需要写入系统设置，用一次 adb 授权即可（永久生效）：
+   > 到这里模块就**完整可用**了：面板注入、降噪、EQ、开关、电量回读全部生效。
+
+### 可选步骤（进阶，与功能无关）
+
+4. **授权设置页开关**（不执行也完全能用，跳过即可）
+
+   设置页里的 3 个开关（启用控制面板 / 输出诊断日志 / 强制注入）需要写入
+   `Settings.Global`，用一次 adb 授权即可（永久生效，重启不丢）：
    ```bash
    adb shell su -c "pm grant io.github.nhckmelody android.permission.WRITE_SECURE_SETTINGS"
    ```
-   > 未授权也能正常使用面板，只是**设置页的开关变只读**，页面会显示这条命令。
+
+   **为什么需要这步？**
+   - 注入代码运行在**宿主进程**（`com.heytap.mydevices`），而设置页运行在
+     **模块自己的进程**（`io.github.nhckmelody`）—— 两者 **UID 不同**
+   - 因此它们读不到对方的 `SharedPreferences`，也不能互写 `/data/data/`
+   - 所以配置通过 **`Settings.Global`** 传递：宿主**读**它不需要任何权限，
+     但模块 App **写**它需要 `WRITE_SECURE_SETTINGS`
+   - 该权限是 `signature|privileged` 级别，**普通应用无法弹窗申请**，
+     只能由 adb/root 授予（adbd 本身没有该权限，所以要用 `su -c`）
+
+   > **未授权时**：使用默认值 —— **启用控制面板 = 开**、诊断日志 = 关、强制注入 = 关，
+   > 这正是日常使用的最佳配置。只是这三个开关在页面上改不动，页面会显示上面那条命令。
+
+   > **注意**：`隐藏桌面图标` 开关**不需要**此授权 —— 它只是修改本 App
+   > 自身组件的启用状态（`PackageManager.setComponentEnabledSetting`）。
 
 ---
 
@@ -82,15 +113,16 @@
 
 桌面图标「**NiceHCK 耳机面板**」，或从 LSPosed Manager 打开。
 
-| 开关 | 作用 |
-|---|---|
-| **隐藏桌面图标** | 隐藏后仍可从 LSPosed Manager 打开；也可用 `adb shell am start -n io.github.nhckmelody/.SettingsActivity` |
-| **启用控制面板** | 总开关，关闭后不再注入控制区 |
-| **输出诊断日志** | 输出视图树 / 定位 / 刷新追踪等详细日志 |
-| **强制注入所有设备** | 调试用：跳过设备判断 |
+| 开关 | 作用 | 需要 adb 授权？ |
+|---|---|:---:|
+| **隐藏桌面图标** | 隐藏后仍可从 LSPosed Manager 打开；也可用 `adb shell am start -n io.github.nhckmelody/.SettingsActivity` | ❌ 不需要 |
+| **启用控制面板** | 总开关，关闭后不再注入控制区（默认**开**） | ✅ 需要 |
+| **输出诊断日志** | 输出视图树 / 定位 / 刷新追踪等详细日志（默认关） | ✅ 需要 |
+| **强制注入所有设备** | 调试用：跳过设备判断（默认关） | ✅ 需要 |
 
-> 模块 App 与宿主是**不同 UID**，因此开关通过 `Settings.Global` 共享
-> （宿主读取无需权限），修改后**最多 5 秒生效**。
+> **为什么后三个需要授权**：模块 App 与宿主是**不同 UID**，开关通过
+> `Settings.Global` 共享（宿主读取无需权限，App 写入需要系统级权限）。
+> 详见[安装 · 可选步骤](#-安装)。修改后**最多 5 秒生效**。
 
 ---
 
@@ -106,16 +138,37 @@ echo "sdk.dir=/path/to/android-sdk" > local.properties
 ./gradlew :app:assembleDebug        # 产物：app/build/outputs/apk/debug/app-debug.apk
 ```
 
-**发布签名（可选）**：在项目根目录创建 `keystore.properties`（已被 `.gitignore` 排除）：
+### 关于发布签名
+
+`assembleDebug` 的产物用 Gradle 自动生成的**调试密钥**签名，带 `android:debuggable`
+标志，**只适合自己临时装**。要给他人分发，需要用**你自己的密钥库**签名。
+
+在项目根目录创建 `keystore.properties`（已被 `.gitignore` 排除，不会进仓库）：
 
 ```properties
-storeFile=../nhck-release.jks
-storePassword=******
+# ⚠️ 路径用【正斜杠】：.properties 里反斜杠是转义符，D:\a\b 会被吃成 Dab
+storeFile=D:/path/to/nhck-release.jks
+storePassword=你的密码
 keyAlias=nhck
-keyPassword=******
+keyPassword=你的密码
 ```
 
-然后 `./gradlew :app:assembleRelease`。
+然后 `./gradlew :app:assembleRelease` → 产物 `app/build/outputs/apk/release/app-release.apk`。
+**不创建该文件时**，`assembleRelease` 只会生成**未签名**的 APK（装不上）。
+
+> **⚠️ 密钥库必须永久备份。** Android 只允许「同包名 + 同签名」的 APK 覆盖安装，
+> 密钥丢失意味着：无法再发布可覆盖安装的更新，老用户必须卸载重装（丢设置）。
+> 已发布的旧版本不受影响。
+
+常用命令：
+
+```bash
+keytool -genkeypair -v -keystore nhck-release.jks -alias nhck \
+        -keyalg RSA -keysize 2048 -validity 10000
+
+# 校验产物
+apksigner verify --print-certs app/build/outputs/apk/release/app-release.apk
+```
 
 ---
 
