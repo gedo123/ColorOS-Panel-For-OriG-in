@@ -2,6 +2,24 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 风格。
 
+## [1.0.1] - 2026-10-07
+
+修复「隐藏桌面图标后，LSPosed Manager 里打不开设置页」的问题。
+
+### 修复
+- **隐藏桌面图标后仍可从 LSPosed 打开设置页**
+  LSPosed Manager 通过 `PackageManager#getLaunchIntentForPackage()` 打开模块，
+  该方法先找 `ACTION_MAIN + CATEGORY_INFO`，落空才找 `CATEGORY_LAUNCHER`。
+  原来只声明了一个带 `LAUNCHER` 的 `activity-alias`，隐藏图标时把它禁用后
+  **两类都落空** → 返回 `null` → 打不开。
+  现新增常驻启用的 `InfoAlias`（`ACTION_MAIN` + `CATEGORY_INFO` + `CATEGORY_DEFAULT`），
+  它不出现在桌面，但能让 `getLaunchIntentForPackage()` 命中。
+- **兼容带 `MATCH_DEFAULT_ONLY` 的查询**
+  补上 `CATEGORY_DEFAULT`，使 `am start` 隐式意图等工具也能解析到该入口。
+
+> 已在真机验证三条启动路径（隐式意图 / 显式组件 / 按解析结果启动），
+> 且桌面图标处于隐藏状态（`disabledComponents: LauncherAlias`）。
+
 ## [1.0.0] - 2026-10-07
 
 首个公开版本。**单机型示范项目** —— 只针对 `YUANDAO OriG in` 一款耳机。
