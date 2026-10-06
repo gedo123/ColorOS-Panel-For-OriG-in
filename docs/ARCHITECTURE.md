@@ -320,3 +320,41 @@ autoHotReload=false
 | 唤醒锁 | **不持有** |
 | 蓝牙活动 | 仅面板打开期间 + 每 10 分钟一次查询（每次 ~8 字节 ×4） |
 | 日志 | 上限 2 MB 自动重置 |
+
+
+---
+
+## 九、「隐藏桌面图标」为什么不能只禁用 LAUNCHER 别名
+
+**现象**：隐藏桌面图标后，LSPosed Manager 里点模块也打不开设置页。
+
+**根因**：`PackageManager#getLaunchIntentForPackage()`（LSPosed Manager、
+多数启动器、各类工具都用它来"打开 App"）的查找顺序是：
+
+```
+① ACTION_MAIN + CATEGORY_INFO       ← 先找
+② ACTION_MAIN + CATEGORY_LAUNCHER   ← ① 落空才用
+```
+
+若只声明了一个带 `CATEGORY_LAUNCHER` 的 `activity-alias`，把它禁用后
+**两类都落空** → `getLaunchIntentForPackage()` 返回 `null` → 打不开。
+
+**解法**：额外声明一个**常驻启用**的 `CATEGORY_INFO` 别名：
+
+```xml
+<activity-alias
+    android:name="io.github.nhckmelody.InfoAlias"
+    android:enabled="true"
+    android:exported="true"
+    android:targetActivity="io.github.nhckmelody.SettingsActivity">
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.INFO" />
+    </intent-filter>
+</activity-alias>
+```
+
+- 它**不会出现在桌面**（launcher 只收录 `CATEGORY_LAUNCHER`）
+- 却让 `getLaunchIntentForPackage()` 能命中 → LSPosed 依然能打开
+
+> ⚠️ **维护提示**：`InfoAlias` 任何时候都不要禁用，否则会把自己锁在门外。

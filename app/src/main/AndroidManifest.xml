@@ -37,5 +37,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity-alias>
+
+        <!-- ★ 「隐藏桌面图标」后仍能被 LSPosed Manager 打开的关键。
+             android.content.pm.PackageManager#getLaunchIntentForPackage 的查找顺序是：
+                 ① ACTION_MAIN + CATEGORY_INFO        ← 先找这个
+                 ② ACTION_MAIN + CATEGORY_LAUNCHER    ← 找不到才用这个
+             LSPosed Manager（以及不少启动器/工具）就是用它来"打开模块"的。
+             所以一旦把上面那个带 LAUNCHER 的别名禁用掉，两者都落空 → 模块打不开。
+
+             这里提供一个【常驻启用】的 CATEGORY_INFO 别名：
+               · 它**不会**出现在桌面（launcher 只收录 CATEGORY_LAUNCHER）
+               · 却能让 getLaunchIntentForPackage 命中，从而 LSPosed 依然能打开本页
+             因此这个别名**任何情况下都不要禁用**。 -->
+        <activity-alias
+            android:name="io.github.nhckmelody.InfoAlias"
+            android:enabled="true"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:targetActivity="io.github.nhckmelody.SettingsActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.INFO" />
+            </intent-filter>
+        </activity-alias>
     </application>
 </manifest>
