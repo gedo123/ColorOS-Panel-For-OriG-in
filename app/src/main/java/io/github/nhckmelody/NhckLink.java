@@ -19,7 +19,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * NiceHCK SPP 链路（运行在 com.oplus.melody 进程内）。
+ * NiceHCK SPP 链路（运行在 <b>com.heytap.mydevices</b> 的 {@code :cards} 子进程内）。
+ *
+ * <p>注意：面板实际位于「设备空间」{@code com.heytap.mydevices}，
+ * <b>不是</b>「无线耳机」{@code com.oplus.melody}（后者仅保留在作用域中做兼容）。</p>
  *
  * <p>P0 已实测：一级降级（secure RFCOMM + 自定义 UUID）即命中，因此这里保留
  * 三级降级但正常只会走第一级。</p>
