@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/banner.jpg" alt="NiceHCK ColorOS Panel">
+</p>
+
 # NiceHCK ColorOS Panel
 
 把**第三方蓝牙耳机**（原道 / NiceHCK 等）接入 **ColorOS「无线耳机」系统面板**的 LSPosed 模块
