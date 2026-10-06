@@ -1,0 +1,73 @@
+plugins {
+    id 'com.android.application'
+}
+
+// ---- 发布签名（可选）----
+// 把密钥信息放在项目根目录的 keystore.properties（已在 .gitignore 中排除），格式：
+//   storeFile=../nhck-release.jks
+//   storePassword=******
+//   keyAlias=nhck
+//   keyPassword=******
+// 该文件不存在时，release 构建仍然可用（只是不签名）。
+def keystorePropsFile = rootProject.file('keystore.properties')
+def hasKeystore = keystorePropsFile.exists()
+def keystoreProps = new Properties()
+if (hasKeystore) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+}
+
+android {
+    namespace 'io.github.nhckmelody'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "io.github.nhckmelody"
+        minSdk 31
+        targetSdk 36
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    signingConfigs {
+        release {
+            if (hasKeystore) {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (hasKeystore) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    packaging {
+        resources {
+            // libxposed 元数据必须打进 APK，其余资源不打包
+            merges += "META-INF/xposed/*"
+            excludes += "**"
+        }
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+}
+
+dependencies {
+    // libxposed API 102
+    compileOnly 'io.github.libxposed:api:102.0.0'
+}

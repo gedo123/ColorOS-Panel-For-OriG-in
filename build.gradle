@@ -1,0 +1,4 @@
+// AGP 对齐到本机 Gradle 缓存中已有的 9.1.1（离线可用）。
+plugins {
+    id 'com.android.application' version '9.1.1' apply false
+}

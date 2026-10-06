@@ -1,0 +1,25 @@
+# ---- Gradle / Android ----
+.gradle/
+build/
+captures/
+local.properties
+keystore.properties
+*.jks
+*.keystore
+
+# ---- IDE ----
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# ---- 逆向/侦察产物（不属于本仓库内容）----
+*.apk
+*.apks
+*.log
+*-out/
+*-dump.txt
+*.dex
+
+# ---- 本地日志/配置 ----
+nhck-verbose

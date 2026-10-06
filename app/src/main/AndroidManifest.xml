@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- LSPosed 模块本身不需要蓝牙权限：Hook 运行在宿主进程内，用的是宿主自己的权限。 -->
+
+    <!-- WRITE_SECURE_SETTINGS：用于「信息页的开关」写入 Settings.Global。
+         需要一次性授权；未授权时开关只读（页面会给出授权命令）。 -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+
+    <application
+        android:allowBackup="false"
+        android:description="@string/app_desc"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.DeviceDefault.Light">
+
+        <!-- 信息页。注意：桌面入口不放在这里，而由下面的 activity-alias 承载，
+             这样「隐藏桌面图标」只需禁用 alias，本 Activity 依然可被
+             LSPosed Manager / adb 启动。 -->
+        <activity
+            android:name="io.github.nhckmelody.SettingsActivity"
+            android:exported="true"
+            android:label="@string/app_name" />
+
+        <!-- 桌面入口（可被本 App 自行禁用，实现"隐藏桌面图标"） -->
+        <activity-alias
+            android:name="io.github.nhckmelody.LauncherAlias"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:label="@string/app_name"
+            android:targetActivity="io.github.nhckmelody.SettingsActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+    </application>
+</manifest>
