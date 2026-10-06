@@ -84,16 +84,21 @@ EqMode : BLUE=0 BALANCED=1  BASS=2  PURE=3  GAME=4  FINE=5  VOCAL=6
 
 ### 3.1 面板不在 melody 里
 
-实测 ColorOS **16.0.1**：
+实测 ColorOS **16.0.1.301(CN01)** / Android 16：
 
 | 项 | 值 |
 |---|---|
-| 宿主 | **`com.heytap.mydevices`**（设备空间），不是 `com.oplus.melody` |
+| 宿主 | **`com.heytap.mydevices`**（设备空间 / My Devices）**16.8.5**（versionCode 1608005） |
 | Activity | `com.oplus.mydevices.bluetooth.BlueToothDetailActivity` |
 | Intent | `com.oplus.mydevices.ACTION_DEVICE_DETAILED_PANEL` |
 | 进程 | **`:cards` 子进程** ⚠️ |
 | 设备名 extra | `device_title` |
 | MAC extra | `device_mac_info` |
+
+> **关于「无线耳机」App**：它是 **`com.oplus.melody`**（标签 `Wireless Earphones`，实测 **16.10.1**）
+> —— **不是** `com.oplus.com`（该包名在实测设备上并不存在）。
+> 本模块的作用域同时包含它（`scope.list` 里两项），但**面板实际位于 `com.heytap.mydevices`**；
+> 保留 melody 是为兼容其它机型/版本。
 
 > ⚠️ 因为面板在**子进程**，所以 `onPackageLoaded` 阶段**不能**像其它模块那样跳过子进程。
 

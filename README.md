@@ -41,7 +41,8 @@
 |---|---|
 | **系统** | **ColorOS 16**（实测 `16.0.1.301(CN01)`）、Android 16（API 36） |
 | **框架** | **LSPosed**，支持 **API 102** |
-| **宿主 App** | `com.heytap.mydevices`（设备空间）**16.8.5** |
+| **宿主 App**<br>（面板所在） | `com.heytap.mydevices`（设备空间 / My Devices）**16.8.5**（versionCode 1608005） |
+| **作用域另一项** | `com.oplus.melody`（无线耳机 / Wireless Earphones）**16.10.1**（versionCode 16010001，完整串 `16.10.1_ba899f8_260905`）<br><sub>实测面板实际在 `com.heytap.mydevices` 内；此包保留在作用域以兼容其它机型/版本</sub> |
 | **Root** | **必需** —— LSPosed 本身依赖 root。额外的 adb 授权**仅用于设置页开关**，与模块功能无关（见[安装](#-安装)） |
 | **耳机** | 采用 **NHCKCTRL** 协议的原道 / NiceHCK 系列（实测 `YUANDAO OriG in`，固件 4.08） |
 
