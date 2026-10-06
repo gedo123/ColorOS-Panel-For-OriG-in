@@ -278,13 +278,26 @@ public class SettingsActivity extends Activity {
         return box;
     }
 
-    /** 统一开关配色（避免系统强调色为白时看不见）。 */
+    /**
+     * 统一开关配色。
+     *
+     * <p>配色要点（踩过坑）：</p>
+     * <ul>
+     *   <li>不能用系统默认色 —— 该 ROM 的主题强调色可能是**白色**，
+     *       开启态在白卡片上会"消失"</li>
+     *   <li>也不能**两种状态都用蓝色滑块** —— 那样关/开只差滑块位置，
+     *       肉眼几乎分不出（曾因此误判所有开关都是开启的）。
+     *       必须让**颜色也随状态变化**：关=白滑块+深灰底槽，开=蓝滑块+浅蓝底槽</li>
+     * </ul>
+     */
     private void style(Switch sw) {
         try {
-            sw.setThumbTintList(android.content.res.ColorStateList.valueOf(0xFF0066FF));
+            sw.setThumbTintList(new android.content.res.ColorStateList(
+                    new int[][]{ new int[]{android.R.attr.state_checked}, new int[]{} },
+                    new int[]{0xFF0066FF, 0xFFFFFFFF}));
             sw.setTrackTintList(new android.content.res.ColorStateList(
                     new int[][]{ new int[]{android.R.attr.state_checked}, new int[]{} },
-                    new int[]{0x400066FF, 0xFFC8C8C8}));
+                    new int[]{0x400066FF, 0xFFB0B0B0}));
         } catch (Throwable ignored) {
         }
     }
