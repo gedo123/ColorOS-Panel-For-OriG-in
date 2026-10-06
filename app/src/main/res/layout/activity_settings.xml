@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  信息页布局。
+
+  图标用 XML 里固定 dp 的 ImageView 承载 —— 这是 Android 最标准的路径，
+  避免在代码里动态 addView 时被 ROM 的测量/裁剪逻辑影响。
+  scaleType=fitCenter：无论宿主给什么尺寸，画面都完整、等比、不裁切。
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="28dp">
+
+        <!-- 大图图标：让用户看清画的内容 -->
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="14dp"
+            android:adjustViewBounds="false"
+            android:scaleType="fitCenter"
+            android:src="@mipmap/ic_launcher" />
+    </LinearLayout>
+</ScrollView>

@@ -19,39 +19,39 @@ import android.widget.Toast;
 /**
  * 模块信息页 / 设置页。
  *
- * <p>所有选项<b>直接显示</b>（不再需要隐藏入口）。开关分两类：</p>
+ * <p>所有选项直接显示。开关分两类：</p>
  * <ul>
- *   <li><b>桌面图标</b> —— 通过启用/禁用 {@code LauncherAlias} 实现（本进程内即可生效）</li>
+ *   <li><b>隐藏桌面图标</b> —— 启用/禁用 {@code LauncherAlias}（本进程内生效）</li>
  *   <li><b>模块行为</b>（控制面板总开关 / 诊断日志 / 强制注入）—— 写入
  *       {@code Settings.Global}，由宿主进程读取（见 {@link NhckConfig}）</li>
  * </ul>
+ *
+ * <p>说明：应用图标本身即桌面图标，此页面不再重复显示大图，
+ * 以免受部分 ROM 的测量/裁剪行为影响（本机实测该 ROM 对程序化图片视图
+ * 只提供约 123dp 的可绘制高度，无法可靠展示大图）。</p>
  */
 public class SettingsActivity extends Activity {
 
     /** 承载桌面入口的组件别名（禁用即"隐藏桌面图标"）。 */
-    private static final String LAUNCHER_ALIAS =
-            "io.github.nhckmelody.LauncherAlias";
+    private static final String LAUNCHER_ALIAS = "io.github.nhckmelody.LauncherAlias";
 
     private TextView hint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(buildUi());
+        // 用 XML 布局（标准路径）：顶部图标是固定 160dp 的 ImageView，fitCenter
+        setContentView(R.layout.activity_settings);
+        LinearLayout root = findViewById(R.id.root);
+        buildUi(root);
     }
 
     // ------------------------------------------------------------------
     // UI
     // ------------------------------------------------------------------
 
-    private View buildUi() {
-        ScrollView sv = new ScrollView(this);
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        int p = dp(20);
-        root.setPadding(p, dp(28), p, dp(28));
-        sv.addView(root);
-
+    /** 把页面内容添加到 XML 布局里的 root 容器。 */
+    private void buildUi(LinearLayout root) {
         TextView title = new TextView(this);
         title.setText(getString(R.string.app_name));
         title.setTextSize(22f);
@@ -67,7 +67,6 @@ public class SettingsActivity extends Activity {
         ver.setPadding(0, dp(4), 0, dp(18));
         root.addView(ver);
 
-        // ---- 说明 ----
         root.addView(section("这是什么"));
         root.addView(body("把原道 / NiceHCK 等第三方蓝牙耳机接入 ColorOS「无线耳机」面板，"
                 + "在系统面板内直接提供降噪、均衡器与功能开关。"));
@@ -82,10 +81,9 @@ public class SettingsActivity extends Activity {
         root.addView(body("打开方式：下拉通知栏 → 长按蓝牙卡片 → 点你的耳机。\n"
                 + "控制区出现在面板底部，位置随官方内容自动对齐。"));
 
-        // ---- 设置 ----
         root.addView(section("设置"));
 
-        // ① 隐藏桌面图标（本进程内生效，无需额外权限）
+        // ① 隐藏桌面图标（本进程内生效，不需要额外权限）
         root.addView(mkLauncherSwitch());
 
         // ② 模块行为开关（写入 Settings.Global，宿主读取）
@@ -113,15 +111,13 @@ public class SettingsActivity extends Activity {
                 + "adb shell su -c \"pm grant " + getPackageName()
                 + " android.permission.WRITE_SECURE_SETTINGS\"");
         root.addView(adb);
-
-        return sv;
     }
 
     /**
      * 「隐藏桌面图标」开关。
      *
-     * <p>原理：桌面入口由 {@code activity-alias} 承载，禁用该别名即可隐藏图标；
-     * 而 {@code SettingsActivity} 本身仍保持可用，因此
+     * <p>桌面入口由 {@code activity-alias} 承载，禁用别名即可隐藏图标；
+     * 而 {@code SettingsActivity} 本身仍可用，因此
      * <b>LSPosed Manager 与 adb 依然能打开本页面</b>，不会把自己锁在门外。</p>
      */
     private View mkLauncherSwitch() {
@@ -172,7 +168,6 @@ public class SettingsActivity extends Activity {
     private boolean isLauncherEnabled() {
         try {
             int state = getPackageManager().getComponentEnabledSetting(aliasComponent());
-            // 未设置过 = 默认启用（清单里 android:enabled="true"）
             return state != PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
         } catch (Throwable t) {
             return true;
@@ -186,8 +181,7 @@ public class SettingsActivity extends Activity {
                     visible ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                             : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                     PackageManager.DONT_KILL_APP);
-            Toast.makeText(this,
-                    visible ? "桌面图标已显示" : "桌面图标已隐藏",
+            Toast.makeText(this, visible ? "桌面图标已显示" : "桌面图标已隐藏",
                     Toast.LENGTH_SHORT).show();
         } catch (Throwable t) {
             Toast.makeText(this, "修改失败: " + t.getClass().getSimpleName(),
