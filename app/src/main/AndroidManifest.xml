@@ -58,6 +58,10 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.INFO" />
+                <!-- CATEGORY_DEFAULT：让带 MATCH_DEFAULT_ONLY 的查询（如 am start 隐式意图、
+                     部分工具/ROM）也能解析到，提升兼容性。
+                     它**不会**让本别名出现在桌面 —— launcher 只收录 CATEGORY_LAUNCHER。 -->
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity-alias>
     </application>
