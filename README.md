@@ -2,9 +2,9 @@
   <img src="docs/banner.jpg" alt="YUANDAO-Origin-ColorOS-Panel">
 </p>
 
-# YUANDAO-Origin-ColorOS-Panel
+# YUANDAO-Origin-ColorOS-Panel（YOICP）
 
-把**第三方蓝牙耳机**（原道 / NiceHCK 等）接入 **ColorOS「无线耳机」系统面板**的 LSPosed 模块
+把**第三方蓝牙耳机**（原道 / NiceHCK 等）的Orig in接入 **ColorOS「无线耳机」系统面板**的 LSPosed 模块
 —— 在系统自带的耳机面板里直接提供**降噪档位、均衡器与功能开关**，并回读**真实电量与状态**。
 
 > 基于 **LSPosed API 102（Modern API）**，未使用任何旧版 `XC_MethodHook` / `XposedHelpers`。
