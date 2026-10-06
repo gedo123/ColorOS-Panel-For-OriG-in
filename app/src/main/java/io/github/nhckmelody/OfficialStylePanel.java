@@ -612,33 +612,36 @@ final class OfficialStylePanel {
         sw.setMinimumHeight(dp(ctx, 28));
         sw.setPadding(0, 0, 0, 0);
 
-        // ★ 开关配色（对齐用户提供的参考图）：
-        //   参考图中【两种状态的滑块都是蓝色】—— 识别度由蓝色滑块提供，
-        //   轨道只作淡淡的底色区分。
-        //   OFF：轨道 = 降噪「未选中」的浅灰 #EBEBEB
-        //   ON ：轨道 = EQ「选中」的浅蓝（主题蓝 25%）
-        //   踩坑：曾把 OFF 滑块设为白色 → 白滑块 + 浅灰轨道在白卡片上几乎不可见。
+        // ★ 开关配色：
+        //   踩坑 1：曾把 OFF 滑块设为白色 + 浅灰轨道 → 白卡片上几乎不可见。
+        //   踩坑 2（更严重）：为了"可见"，一度把**两种状态的滑块都设为蓝色**，
+        //           结果关/开只差 ~59px 的滑块位置，肉眼分不出，
+        //           实测会被误判成"所有开关都是开启的"。
+        //   ⇒ 正解：**颜色 + 位置双重区分**
+        //        ON ：滑块 = 主题蓝，轨道 = 主题蓝 25%（与 EQ 选中一致）
+        //        OFF：滑块 = 白色，  轨道 = 深灰 #B0B0B0（细轨道需要更高对比度）
         //   注意：宿主主题 colorAccent 是白色（coui_theme_primary_color=#ffffffff），
         //   不显式指定 tint 会出现"白滑块 + 白轨道"完全看不见的情况。
         try {
             int blue = primaryBlue(ctx);
-            int soft = (0x40 << 24) | (blue & 0x00FFFFFF);   // 25% 主题蓝（与 EQ 选中一致）
-            // OFF 轨道：必须用「足够深的灰」才看得见。
-            // 实测教训：先用 #EBEBEB（降噪未选中圆底色）→ 在白卡片上几乎消融，
-            // 因为那个色是作为"实心圆"存在的，而轨道是很细的一条，需要更高对比度。
-            int offGrey = 0xFFC8C8C8;
+            int soft = (0x40 << 24) | (blue & 0x00FFFFFF);   // 25% 主题蓝
+            int offGrey = 0xFFB0B0B0;
 
-            // 滑块：两种状态都用主题蓝（与参考图一致）
-            sw.setThumbTintList(android.content.res.ColorStateList.valueOf(blue));
-            // 轨道：OFF 浅灰 / ON 浅蓝
+            sw.setThumbTintList(new android.content.res.ColorStateList(
+                    new int[][]{
+                            new int[]{android.R.attr.state_checked},
+                            new int[]{}
+                    },
+                    new int[]{blue, 0xFFFFFFFF}));
             sw.setTrackTintList(new android.content.res.ColorStateList(
                     new int[][]{
                             new int[]{android.R.attr.state_checked},
                             new int[]{}
                     },
                     new int[]{soft, offGrey}));
-            Dumper.diag("[UI] 开关配色: thumb=#" + String.format("%08X", blue)
-                    + "（两态同色） track(ON)=#" + String.format("%08X", soft)
+            Dumper.diag("[UI] 开关配色: thumb(ON)=#" + String.format("%08X", blue)
+                    + " thumb(OFF)=#FFFFFFFF"
+                    + " track(ON)=#" + String.format("%08X", soft)
                     + " track(OFF)=#" + String.format("%08X", offGrey));
         } catch (Throwable t) {
             Dumper.log("[UI] 开关 tint 设置失败（已忽略）: " + t);
