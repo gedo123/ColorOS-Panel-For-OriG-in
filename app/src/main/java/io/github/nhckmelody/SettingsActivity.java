@@ -52,6 +52,20 @@ public class SettingsActivity extends Activity {
 
     /** 把页面内容添加到 XML 布局里的 root 容器。 */
     private void buildUi(LinearLayout root) {
+        // 图标：点击放大查看原图
+        try {
+            View iconView = findViewById(R.id.icon);
+            if (iconView != null) {
+                iconView.setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        showFullIcon();
+                    }
+                });
+            }
+        } catch (Throwable ignored) {
+            // 图标只是装饰，失败不影响其它内容
+        }
+
         TextView title = new TextView(this);
         title.setText(getString(R.string.app_name));
         title.setTextSize(22f);
@@ -111,6 +125,43 @@ public class SettingsActivity extends Activity {
                 + "adb shell su -c \"pm grant " + getPackageName()
                 + " android.permission.WRITE_SECURE_SETTINGS\"");
         root.addView(adb);
+    }
+
+    /**
+     * 点击图标：放大显示**原图**（未缩放的完整画作）。
+     *
+     * <p>原图作为 {@code drawable-nodpi/nhck_icon_full.png} 打进包里
+     * （nodpi 保证不被系统按密度缩放）。</p>
+     */
+    private void showFullIcon() {
+        try {
+            android.widget.ImageView iv = new android.widget.ImageView(this);
+            iv.setImageResource(R.drawable.nhck_icon_full);
+            iv.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+            iv.setAdjustViewBounds(true);
+
+            android.widget.FrameLayout box = new android.widget.FrameLayout(this);
+            int pad = dp(6);
+            box.setPadding(pad, pad, pad, pad);
+            box.addView(iv, new android.widget.FrameLayout.LayoutParams(
+                    android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT));
+
+            final android.app.AlertDialog dlg = new android.app.AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.app_name))
+                    .setView(box)
+                    .setPositiveButton("关闭", null)
+                    .create();
+            dlg.show();
+            try {
+                int side = (int) (getResources().getDisplayMetrics().widthPixels * 0.92f);
+                dlg.getWindow().setLayout(side, ViewGroup.LayoutParams.WRAP_CONTENT);
+            } catch (Throwable ignored) {
+            }
+        } catch (Throwable t) {
+            Toast.makeText(this, "无法打开原图: " + t.getClass().getSimpleName(),
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
