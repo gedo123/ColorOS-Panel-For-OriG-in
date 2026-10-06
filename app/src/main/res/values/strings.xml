@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Origin-ColorOS-Panel</string>
+    <string name="app_name">ColorOS-Panel For OriG in</string>
     <string name="app_desc">把「原道 OriG in」蓝牙耳机接入 ColorOS「无线耳机」面板，提供降噪、均衡器与功能开关。</string>
     <string name="advanced_title">高级选项</string>
     <string name="grant_needed">需要一次性授权才能修改开关（adb 命令见下方）</string>

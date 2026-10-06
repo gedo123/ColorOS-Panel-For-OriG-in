@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/banner.jpg" alt="Origin-ColorOS-Panel">
+  <img src="docs/banner.jpg" alt="ColorOS-Panel For OriG in">
 </p>
 
-# Origin-ColorOS-Panel
+# ColorOS-Panel For OriG in
 
 把「**原道 OriG in**」蓝牙耳机接入 **ColorOS「无线耳机」系统面板**的 LSPosed 模块
 —— 在系统自带的耳机面板里直接提供**降噪档位、均衡器与功能开关**，并回读**真实电量与状态**。
@@ -70,7 +70,7 @@
 
 1. **安装 APK**（从 [Releases](../../releases) 下载）
    ```bash
-   adb install -r Origin-ColorOS-Panel-v1.0.0.apk
+   adb install -r ColorOS-Panel-For-OriG-in-v1.0.0.apk
    ```
 
 2. **在 LSPosed Manager 中启用模块**，并勾选作用域：
@@ -131,7 +131,7 @@
 
 ## ⚙️ 设置页
 
-桌面图标「**Origin-ColorOS-Panel**」，或从 LSPosed Manager 打开。
+桌面图标「**ColorOS-Panel For OriG in**」，或从 LSPosed Manager 打开。
 
 | 开关 | 作用 | 需要 adb 授权？ |
 |---|---|:---:|
