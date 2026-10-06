@@ -82,13 +82,14 @@ public class SettingsActivity extends Activity {
         root.addView(ver);
 
         root.addView(section("这是什么"));
-        root.addView(body("把原道 / NiceHCK 等第三方蓝牙耳机接入 ColorOS「无线耳机」面板，"
-                + "在系统面板内直接提供降噪、均衡器与功能开关。"));
+        root.addView(body("把「原道 OriG in」蓝牙耳机接入 ColorOS「无线耳机」面板，"
+                + "在系统面板内直接提供降噪、均衡器与功能开关。\n"
+                + "（本模块为单机型示范项目，仅在该型号上实测。）"));
 
         root.addView(section("工作方式"));
         root.addView(body("· 通过 LSPosed（API 102）注入系统「设备空间」进程\n"
                 + "· 作用域：com.heytap.mydevices、com.oplus.melody\n"
-                + "· 只有当面板对应的设备是原道 / NiceHCK 系列时才注入控制区\n"
+                + "· 仅当面板对应的设备为「原道 OriG in」时才注入控制区\n"
                 + "· 通过蓝牙 SPP 通道与耳机直接通信，不依赖官方 App"));
 
         root.addView(section("使用提示"));

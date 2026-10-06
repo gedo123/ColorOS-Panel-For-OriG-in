@@ -1,12 +1,16 @@
 <p align="center">
-  <img src="docs/banner.jpg" alt="YUANDAO-Origin-ColorOS-Panel">
+  <img src="docs/banner.jpg" alt="Origin-ColorOS-Panel">
 </p>
 
-# YUANDAO-Origin-ColorOS-Panel（YOICP）
+# Origin-ColorOS-Panel
 
-把**第三方蓝牙耳机**（原道 / NiceHCK 等）的Orig in接入 **ColorOS「无线耳机」系统面板**的 LSPosed 模块
+把「**原道 OriG in**」蓝牙耳机接入 **ColorOS「无线耳机」系统面板**的 LSPosed 模块
 —— 在系统自带的耳机面板里直接提供**降噪档位、均衡器与功能开关**，并回读**真实电量与状态**。
 
+> **项目定位**：这是一个**单机型示范项目** —— 只针对 **YUANDAO OriG in** 一款耳机，
+> 目的是演示「如何把一款第三方耳机接进 ColorOS 系统面板」。
+> 耳机为作者自费购买，与厂商无任何关联。
+>
 > 基于 **LSPosed API 102（Modern API）**，未使用任何旧版 `XC_MethodHook` / `XposedHelpers`。
 
 ---
@@ -44,7 +48,7 @@
 | **宿主 App**<br>（面板所在） | `com.heytap.mydevices`（设备空间 / My Devices）**16.8.5**（versionCode 1608005） |
 | **作用域另一项** | `com.oplus.melody`（无线耳机 / Wireless Earphones）**16.10.1**（versionCode 16010001，完整串 `16.10.1_ba899f8_260905`）<br><sub>实测面板实际在 `com.heytap.mydevices` 内；此包保留在作用域以兼容其它机型/版本</sub> |
 | **Root** | **必需** —— LSPosed 本身依赖 root。额外的 adb 授权**仅用于设置页开关**，与模块功能无关（见[安装](#-安装)） |
-| **耳机** | 采用 **NHCKCTRL** 协议的原道 / NiceHCK 系列（实测 `YUANDAO OriG in`，固件 4.08） |
+| **耳机** | **仅实测 `YUANDAO OriG in`**（固件 4.08）。协议为经典蓝牙 SPP（UUID 尾部 = ASCII `NHCKCTRL`）<br><sub>代码内保留了按设备名匹配的兜底逻辑（见[使用](#-使用)），但**其它型号一律未验证**</sub> |
 
 > ⚠️ **兼容性警告**：本模块依赖宿主 App 的**内部类与方法结构**。系统或「设备空间」App 升级后
 > **可能失效**，需要重新适配（见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) 的「换版复用」章节）。
@@ -66,7 +70,7 @@
 
 1. **安装 APK**（从 [Releases](../../releases) 下载）
    ```bash
-   adb install -r NiceHCK-ColorOS-Panel.apk
+   adb install -r Origin-ColorOS-Panel-v1.0.0.apk
    ```
 
 2. **在 LSPosed Manager 中启用模块**，并勾选作用域：
@@ -114,15 +118,20 @@
 
 控制区会出现在系统面板的**底部**，位置自动对齐官方内容。
 
-> **提示**：只有当面板对应的设备是**原道 / NiceHCK 系列**时才会注入控制区
+> **提示**：只有当面板对应的设备是**原道 OriG in** 时才会注入控制区
 > （避免给车机、其它品牌耳机凭空插入控件）。判断依据是设备名，
 > 并用「最近一次成功连接的 MAC」兜底 —— 所以**改了设备名也能识别**。
+>
+> 代码里的名称匹配列表为 `{YUANDAO, NiceHCK, OriG, EB2S, NHCK, 原道}`，
+> 属于**同协议系列的经验性兜底**（原道即 NiceHCK 贴牌，官方 App 包名为
+> `com.yuandao.nicehck`）。除 `YUANDAO OriG in` 外**均未实测**，
+> 若你的型号能识别出来，欢迎反馈。
 
 ---
 
 ## ⚙️ 设置页
 
-桌面图标「**NiceHCK 耳机面板**」，或从 LSPosed Manager 打开。
+桌面图标「**Origin-ColorOS-Panel**」，或从 LSPosed Manager 打开。
 
 | 开关 | 作用 | 需要 adb 授权？ |
 |---|---|:---:|
@@ -213,19 +222,21 @@ deoptimize，实测会导致 `:cards` 进程崩溃。
 
 ## ⚠️ 已知限制
 
-1. **与官方面板各自滚动** —— 我们的控制区在结构上是官方 `RecyclerView` 的**兄弟节点**，
+1. **仅适配一款耳机** —— 只针对 `YUANDAO OriG in`（固件 4.08）开发与实测。
+   代码虽有名称匹配兜底，但**其它型号一律未验证**，请勿假定可用。
+2. **与官方面板各自滚动** —— 我们的控制区在结构上是官方 `RecyclerView` 的**兄弟节点**，
    不在它的滚动流里。当前用「限高滚动」缓解，日常无碍。根治需要重构宿主视图层级（风险较高，暂未采用）。
-2. **仅一台设备、一款耳机实测** —— OnePlus PJF110 / ColorOS 16.0.1.301 / `YUANDAO OriG in` 固件 4.08。
-3. **依赖宿主内部结构** —— 系统或「设备空间」升级后可能失效。
-4. **同时只允许一个程序占用 SPP** —— 面板打开期间会占用耳机 SPP 通道，
-   **官方 NiceHCK App 此时无法连接**（面板关闭后立即释放）。
+3. **实测环境单一** —— 仅 OnePlus PJF110 / ColorOS 16.0.1.301(CN01) / Android 16 一台设备。
+4. **依赖宿主内部结构** —— 系统或「设备空间」升级后可能失效。
+5. **同时只允许一个程序占用 SPP** —— 面板打开期间会占用耳机 SPP 通道，
+   **官方 App 此时无法连接**（面板关闭后立即释放）。
 
 ---
 
 ## 📄 第三方素材声明
 
 - 本模块**不包含**任何第三方 App 的代码或资源文件，除下列一项：
-  **`app/src/main/assets/nhck_origin.png`** —— 原道耳机产品图，取自官方 App
+  **`app/src/main/assets/nhck_origin.png`** —— 原道 OriG in 产品图，取自官方 App
   （`com.yuandao.nicehck`）的 assets，**仅用于在系统面板中标识设备型号**。
   **版权归原权利人所有，不在本项目的 MIT 许可范围内。** 详见 [NOTICE](NOTICE)。
 - 如权利人认为不妥，请开 Issue，我会**立即移除**该文件。
@@ -234,8 +245,9 @@ deoptimize，实测会导致 `:cards` 进程崩溃。
 
 ## ⚖️ 免责声明
 
-- 本项目为**非官方**作品，与 **OPPO / 一加 / ColorOS / 原道 / NiceHCK** 及其关联公司
+- 本项目为**非官方**作品，与 **OPPO / 一加 / ColorOS / 原道（NiceHCK）** 及其关联公司
   **无任何关联**，未被其授权或认可。
+- 耳机为作者自费购买，本项目**不以任何形式分发耳机厂商的软件或固件**。
 - 仅供**学习与研究**使用。使用本模块可能违反设备保修条款或相关服务协议，**风险自负**。
 - 图标中的 Bluetooth 标志为 **Bluetooth SIG, Inc.** 的注册商标。
 
@@ -245,7 +257,7 @@ deoptimize，实测会导致 `:cards` 进程崩溃。
 
 本项目的协议调研与注入思路受益于以下开源项目（**代码为独立实现**）：
 
-- **ZaeXT/NiceHCK_Controller** —— NiceHCK 耳机控制协议的调研
+- **ZaeXT/NiceHCK_Controller** —— 该系列耳机控制协议的调研
 - **Andrea-lyz/MelodyCodecTweaker** —— LSPosed Hook 与面板 UI 注入的方法思路
 
 以及 **LSPosed** 与 **libxposed API** 提供的框架能力。
