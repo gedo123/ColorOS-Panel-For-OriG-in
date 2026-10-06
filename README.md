@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.jpg" alt="NiceHCK ColorOS Panel">
+  <img src="docs/banner.jpg" alt="YUANDAO-Origin-ColorOS-Panel">
 </p>
 
 # NiceHCK ColorOS Panel
