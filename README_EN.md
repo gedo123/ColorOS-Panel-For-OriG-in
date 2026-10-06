@@ -79,7 +79,7 @@ Top to bottom: **official product image** (replacing the generic headset graphic
 
 1. **Install the APK** (download from [Releases](../../releases))
    ```bash
-   adb install -r ColorOS-Panel-For-OriG-in-v1.0.0.apk
+   adb install -r ColorOS-Panel-For-OriG-in-v1.0.1.apk
    ```
 
 2. **Enable the module in LSPosed Manager** and select the scope:

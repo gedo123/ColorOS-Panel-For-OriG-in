@@ -74,7 +74,7 @@
 
 1. **安装 APK**（从 [Releases](../../releases) 下载）
    ```bash
-   adb install -r ColorOS-Panel-For-OriG-in-v1.0.0.apk
+   adb install -r ColorOS-Panel-For-OriG-in-v1.0.1.apk
    ```
 
 2. **在 LSPosed Manager 中启用模块**，并勾选作用域：
